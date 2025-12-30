@@ -9,6 +9,19 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v6.0.1
-    - name: build
+    - name: make build
       run: |
-        ./configure --prefix=$(pwd)/build --enable-multilib --with-languages=c,c++
+        set -e
+        ./configure --prefix="$(pwd)/build" --enable-multilib --with-languages=c,c++
+        make linux -j9
+        cd build/bin
+        for f in riscv64-unknown-linux-gnu-*; do
+            linkname="${f/-unknown/}";
+            ln -s "$f" "$linkname";
+        done
+        cd -
+    - name: docker build
+      run: |
+        REPO_NAME=$(basename $GITHUB_REPOSITORY)
+        BRANCH_NAME=${GITHUB_REF#refs/heads/}
+        docker build -t "${REPO_NAME}:${BRANCH_NAME}" .
