@@ -13,7 +13,7 @@ jobs:
       run: |
         set -e
         ./configure --prefix="$(pwd)/build" --enable-multilib --with-languages=c,c++
-        make linux
+        make linux -j6
         cd build/bin
         for f in riscv64-unknown-linux-gnu-*; do
             linkname="${f/-unknown/}";
